@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>This is the greatest to-do list of All Time</title>
-	<style>
+<style>
 	table, th, td {
     	border: 1px solid black;
 }
@@ -18,7 +18,20 @@
 	    			<input type="submit" name="SubmitButton" value="Delete">
 	    		</form>
 	    	</th>
+	    	<th>
+	    		<form action="{{ url_for('done_entry') }}" method="post">
+	    			<input type="hidden" name="doneEntry" value="{{ entry }}">
+	    			<input type="submit" name="SubmitButton" value="Done">
+	    		</form>
+	    	</th>
 	    	<th>{{ entry }}</th>
+		</tr>
+	{% endfor %}
+	</table>
+	{% for entry in donelist %}
+	<table>
+		<tr>
+			<th>{{ entry }}</th>
 		</tr>
 	{% endfor %}
 	</table>
