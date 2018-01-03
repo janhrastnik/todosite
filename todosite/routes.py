@@ -6,10 +6,22 @@ conn = sqlite3.connect('todolist.db')
 conn.text_factory = str
 c = conn.cursor()
 
+conn2 = sqlite3.connect('todonelist.db')
+conn2.text_factory = str
+c2 = conn2.cursor()
+
 c.execute(""" CREATE TABLE IF NOT EXISTS todolist (
 				entry text
 	) """)
 conn.commit()
+
+c2.execute(""" CREATE TABLE IF NOT EXISTS todolist (
+				entry text
+	) """)
+conn2.commit()
+
+
+
 
 @app.route('/handle_data', methods=['POST'])
 def handle_data():
