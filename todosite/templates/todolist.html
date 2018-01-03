@@ -18,9 +18,22 @@
 	    			<input type="submit" name="SubmitButton" value="Delete">
 	    		</form>
 	    	</th>
+	    	<th>
+	    		<form action="{{ url_for('done_entry') }}" method="post">
+	    			<input type="hidden" name="doneEntry" value="{{ entry }}">
+	    			<input type="submit" name="SubmitButton" value="Done">
+	    		</form>
+	    	</th>
 	    	<th>{{ entry }}</th>
 		</tr>
 	{% endfor %}
+	</table>
+	
+	{% for entry in donelist %}
+	<table> <!-- This shall be the 'done' table one day!-->
+		<tr>
+			<th>{{ entry }}</th>
+		</tr>
 	</table>
 	<p>Input a new entry:</p>
 	<form action="{{ url_for('handle_data') }}" method="post">
