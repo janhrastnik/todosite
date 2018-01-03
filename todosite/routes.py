@@ -15,7 +15,7 @@ c.execute(""" CREATE TABLE IF NOT EXISTS todolist (
 	) """)
 conn.commit()
 
-c2.execute(""" CREATE TABLE IF NOT EXISTS todolist (
+c2.execute(""" CREATE TABLE IF NOT EXISTS todonelist (
 				entry text
 	) """)
 conn2.commit()
@@ -36,16 +36,28 @@ def handle_data():
 def table():
 	c.execute("SELECT * FROM todolist")
 	todolist = [i[0] for i in c.fetchall()]
-	todoliststr = "".join(todolist)
+	todoliststr = "".join(todolist) # for testing
 	conn.commit()
-	return render_template('todolist.html', todolist=todolist),  # todoliststr
+	
+	c2.execute("SELECT * FROM todonelist")
+	donelist = [i[0] for i in c2.fetchall()]
+	conn2.commit()
+	return render_template('todolist.html', todolist=todolist, donelist=donelist),  # todoliststr
 
 
 @app.route('/delete_entry', methods=['POST'])
 def delete_entry():
-	entryid = request.form['deleteEntry']
-	c.execute("DELETE FROM todolist WHERE entry = :entryid", {"entryid": entryid})
+	entryname = request.form['deleteEntry']
+	c.execute("DELETE FROM todolist WHERE entry = :entry", {"entry": entryname})
 	return redirect(url_for('table'))
+
+@app.route('/done_entry', methods=['POST'])
+def done_entry():
+	entryname = request.form['doneEntry']
+	c.execute("DELETE FROM todolist WHERE entry = :entry", {"entry": entryname})
+	c2.execute("INSERT INTO todonelist VALUES (:entry)", {'entry': entryname})
+	return redirect(url_for('table'))
+
 """
 
 @app.route('/test', methods=['POST'])
