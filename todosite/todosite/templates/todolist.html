@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="../static/css/bootstrap.min.css" >
+
+
+
+	<title>This is the greatest to-do list of All Time</title>
+<style>
+	table, th, td {
+		border: 1px solid black;
+}
+</style>
+</head>
+<body>
+	{% for entry in todolist %}
+	<table>
+		<tr>
+			<th>
+				<form action="{{ url_for('delete_entry') }}" method="post">
+					<input type="hidden" name="deleteEntry" value="{{ entry }}">
+					<input type="submit" name="SubmitButton" value="Delete">
+				</form>
+			</th>
+			<th>
+				<form action="{{ url_for('done_entry') }}" method="post">
+					<input type="hidden" name="doneEntry" value="{{ entry }}">
+					<input type="submit" name="SubmitButton" value="Done">
+				</form>
+			</th>
+			<th>{{ entry }}</th>
+		</tr>
+	{% endfor %}
+	</table>
+	{% for entry in donelist %}
+	<table>
+		<tr>
+			<th>{{ entry }}</th>
+		</tr>
+	{% endfor %}
+	</table>
+	<p>Input a new entry:</p>
+	<form action="{{ url_for('handle_data') }}" method="post">
+		<input type="text" name="ideaInput" id="idea" size="40" placeholder="Input your idea">
+		<input type="submit">
+	</form>
+</body>
+</html>
