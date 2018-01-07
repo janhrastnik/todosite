@@ -32,7 +32,6 @@ def handle_data():
 
 
 @app.route('/')
-@app.route('/index')
 def table():
 	c.execute("SELECT * FROM todolist")
 	todolist = [i[0] for i in c.fetchall()]
@@ -48,6 +47,7 @@ def table():
 @app.route('/delete_entry', methods=['POST'])
 def delete_entry():
 	entryname = request.form['deleteEntry']
+	print(entryname)
 	c.execute("DELETE FROM todolist WHERE entry = :entry", {"entry": entryname})
 	return redirect(url_for('table'))
 
@@ -58,8 +58,13 @@ def done_entry():
 	c2.execute("INSERT INTO todonelist VALUES (:entry)", {'entry': entryname})
 	return redirect(url_for('table'))
 
-"""
+@app.route('/aFunction')
+def aFunction():
+	aVar = request.args.get('aVar')
+	print(aVar)
+	return redirect(url_for('table'))
 
+"""
 @app.route('/test', methods=['POST'])
 def test():
 	testentry = request.form['test']
