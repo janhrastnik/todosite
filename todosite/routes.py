@@ -2,20 +2,24 @@ import sqlite3
 from flask import render_template, request, redirect, url_for
 from todosite import app
 
-conn = sqlite3.connect('todolist.db')
+"""
+#TODO: change functions to get on server
+"""
+
+conn = sqlite3.connect('todoList.db')
 conn.text_factory = str
 c = conn.cursor()
 
-conn2 = sqlite3.connect('todonelist.db')
+conn2 = sqlite3.connect('todoneList.db')
 conn2.text_factory = str
 c2 = conn2.cursor()
 
-c.execute(""" CREATE TABLE IF NOT EXISTS todolist (
+c.execute(""" CREATE TABLE IF NOT EXISTS todoList (
 				entry text
 	) """)
 conn.commit()
 
-c2.execute(""" CREATE TABLE IF NOT EXISTS todonelist (
+c2.execute(""" CREATE TABLE IF NOT EXISTS todoneList (
 				entry text
 	) """)
 conn2.commit()
@@ -23,46 +27,45 @@ conn2.commit()
 
 
 
-@app.route('/handle_data', methods=['POST'])
-def handle_data():
+@app.route('/handleData', methods=['POST'])
+def handleData():
 	idea = request.form['ideaInput']
-	c.execute("INSERT INTO todolist VALUES (:entry)", {'entry': idea})
+	c.execute("INSERT INTO todoList VALUES (:entry)", {'entry': idea})
 	conn.commit()
-	return redirect(url_for('table'))
+	return redirect(url_for('index'))
 
 
 @app.route('/')
-def table():
-	c.execute("SELECT * FROM todolist")
-	todolist = [i[0] for i in c.fetchall()]
-	todoliststr = "".join(todolist) # for testing
+def index():
+	c.execute("SELECT * FROM todoList")
+	todoList = [i[0] for i in c.fetchall()]
+	todoListStr = "".join(todoList) # for testing
 	conn.commit()
 	
-	c2.execute("SELECT * FROM todonelist")
-	donelist = [i[0] for i in c2.fetchall()]
+	c2.execute("SELECT * FROM todoneList")
+	doneList = [i[0] for i in c2.fetchall()]
 	conn2.commit()
-	return render_template('todolist.html', todolist=todolist, donelist=donelist),  # todoliststr
+	return render_template('index.html', todoList=todoList, doneList=doneList),  # todoListStr
 
 
-@app.route('/delete_entry', methods=['POST'])
-def delete_entry():
-	entryname = request.form['deleteEntry']
-	print(entryname)
-	c.execute("DELETE FROM todolist WHERE entry = :entry", {"entry": entryname})
-	return redirect(url_for('table'))
+@app.route('/deleteEntry')
+def deleteEntry():
+	entryName = request.args.get('entryName')
+	c.execute("DELETE FROM todoList WHERE entry = :entry", {"entry": entryName})
+	return redirect(url_for('index'))
 
-@app.route('/done_entry', methods=['POST'])
-def done_entry():
-	entryname = request.form['doneEntry']
-	c.execute("DELETE FROM todolist WHERE entry = :entry", {"entry": entryname})
-	c2.execute("INSERT INTO todonelist VALUES (:entry)", {'entry': entryname})
-	return redirect(url_for('table'))
+@app.route('/doneEntry')
+def doneEntry():
+	entryName = request.args.get('entryName')
+	c.execute("DELETE FROM todoList WHERE entry = :entry", {"entry": entryName})
+	c2.execute("INSERT INTO todoneList VALUES (:entry)", {'entry': entryName})
+	return redirect(url_for('index'))
 
 @app.route('/aFunction')
 def aFunction():
 	aVar = request.args.get('aVar')
 	print(aVar)
-	return redirect(url_for('table'))
+	return redirect(url_for('index'))
 
 """
 @app.route('/test', methods=['POST'])

@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+<!--
+#TODO: fix stylesheet.css error
+-->
 
 <head>
     <!-- Required meta tags -->
@@ -21,7 +24,7 @@
         <div class="row">
         	<div class="col-md-12">
 	        	<div class="form-group">
-			        <form action="{{ url_for('handle_data') }}" method="post">
+			        <form action="{{ url_for('handleData') }}" method="post">
 
 			        	<label for="idea">Input a new entry:</label>
 
@@ -49,22 +52,12 @@
                 	</li>
                 </ul>
                     <ul>
-	                {% for entry in todolist %}
+	                {% for entry in todoList %}
 
                         <li>
-                            <!--- <form class="form-inline" action="{{ url_for('delete_entry') }}" method="post">
-                                <input type="hidden" name="deleteEntry" value="{{ entry }}">
-                                <input type="submit" name="SubmitButton" value="Delete">
-                            </form>
-
-                            <form action="{{ url_for('done_entry') }}" method="post">
-                                <input type="hidden" name="doneEntry" value="{{ entry }}">
-                                <input type="submit" name="SubmitButton" value="Done">
-                            </form> -->
-
-                            <a href="{{ url_for('aFunction', aVar=entry)}}"><button>TEST</button></a>
-                        	{{ entry }}
-
+                            <a href="{{ url_for('deleteEntry', entryName=entry)}}"><button class="btn">Delete</button></a>
+                            <a href="{{ url_for('doneEntry', entryName=entry)}}"><button class="btn">Done</button></a>
+                            {{ entry }}
                         </li>
 
                     {% endfor %}
@@ -73,7 +66,7 @@
 
             <div class="col-md-6">
                     <ul>
-            	    {% for entry in donelist %}
+            	    {% for entry in doneList %}
 
                         <li>{{ entry }}</li>
 
