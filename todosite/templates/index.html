@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+    <!-- My CSS -->
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css') }}">
+
+    <title>This is the greatest to-do list of All Time</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+        	<div class="col-md-12">
+	        	<div class="form-group">
+			        <form action="{{ url_for('handleData') }}" method="post">
+
+			        	<label for="idea">Input a new entry:</label>
+
+			            <input type="text" class="form-control" name="ideaInput" id="idea" size="40" placeholder="Input your idea">
+
+			            <input type="submit" class="btn btn-default">
+
+			        </form>
+			    </div>
+		    </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <ul>
+                {% for entry in todoList %}
+
+                    <li>
+                        <a href="{{ url_for('deleteEntry', entryName=entry)}}"><button class="btn">Delete</button></a>
+                        <a href="{{ url_for('doneEntry', entryName=entry)}}"><button class="btn">Done</button></a>
+                        {{ entry }}
+                    </li>
+
+                {% endfor %}
+                </ul>
+            </div>
+
+            <div class="col-md-6">
+                    <ul>
+            	    {% for entry in doneList %}
+
+                        <li>{{ entry }}</li>
+
+            	    {% endfor %}
+                    </ul>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
