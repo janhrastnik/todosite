@@ -35,12 +35,12 @@
         <div class="row">
             <div class="col-md-6">
                 <ul>
-                {% for entry in todoList %}
+                {% for row in todoList %}
 
                     <li>
-                        <a href="{{ url_for('deleteEntry', entryName=entry)}}"><button class="btn">Delete</button></a>
-                        <a href="{{ url_for('doneEntry', entryName=entry)}}"><button class="btn">Done</button></a>
-                        {{ entry }}
+                        <a href="{{ url_for('deleteEntry', entryId=row[0])}}"><button class="btn">Delete</button></a>
+                        <a href="{{ url_for('doneEntry', entryId=row[0])}}"><button class="btn">Done</button></a>
+                        {{ row[1] }}
                     </li>
 
                 {% endfor %}
@@ -49,9 +49,9 @@
 
             <div class="col-md-6">
                     <ul>
-            	    {% for entry in doneList %}
+            	    {% for row in doneList %}
 
-                        <li>{{ entry }}</li>
+                        <li>{{ row[0] }}</li>
 
             	    {% endfor %}
                     </ul>

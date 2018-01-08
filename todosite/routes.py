@@ -11,51 +11,53 @@ conn2.text_factory = str
 c2 = conn2.cursor()
 
 c.execute(""" CREATE TABLE IF NOT EXISTS todoList (
-				entry text
+				entry text NOT NULL
 	) """)
 conn.commit()
 
 c2.execute(""" CREATE TABLE IF NOT EXISTS todoneList (
-				entry text
+				entry text NOT NULL
 	) """)
 conn2.commit()
 
 @app.route('/')
 def index():
-	c.execute("SELECT * FROM todoList")
-	todoList = [i[0] for i in c.fetchall()]
-	todoListStr = "".join(todoList) # for testing
+	c.execute("SELECT rowid,* FROM todoList")
 	conn.commit()
-	
+
 	c2.execute("SELECT * FROM todoneList")
-	doneList = [i[0] for i in c2.fetchall()]
 	conn2.commit()
-	return render_template('index.html', todoList=todoList, doneList=doneList),  # todoListStr
+
+	return render_template('index.html', todoList=c.fetchall(), doneList=c2.fetchall()),
 
 @app.route('/handleData', methods=['POST'])
 def handleData():
 	idea = request.form['ideaInput']
-	c.execute("INSERT INTO todoList VALUES (:entry)", {'entry': idea})
-	conn.commit()
+	if idea:
+		c.execute("INSERT INTO todoList VALUES (:entry)", {'entry': idea})
+		conn.commit()
 	return redirect(url_for('index'))
 
 @app.route('/deleteEntry')
 def deleteEntry():
-	entryName = request.args.get('entryName')
-	c.execute("DELETE FROM todoList WHERE entry = :entry", {"entry": entryName})
+	entryId = request.args.get('entryId')
+	c.execute("DELETE FROM todoList WHERE rowid = :Id", {"Id": entryId})
+	conn.commit()
 	return redirect(url_for('index'))
 
 @app.route('/doneEntry')
 def doneEntry():
-	entryName = request.args.get('entryName')
-	c.execute("DELETE FROM todoList WHERE entry = :entry", {"entry": entryName})
-	c2.execute("INSERT INTO todoneList VALUES (:entry)", {'entry': entryName})
-	return redirect(url_for('index'))
+	entryId = request.args.get('entryId')
 
-@app.route('/aFunction')
-def aFunction():
-	aVar = request.args.get('aVar')
-	print(aVar)
+	c.execute("SELECT entry FROM todoList WHERE rowid = :Id", {"Id": entryId})
+	entryToInsert = c.fetchall()[0][0]
+	conn.commit()
+
+	c.execute("DELETE FROM todoList WHERE rowid = :Id", {"Id": entryId})
+	conn.commit()
+
+	c2.execute("INSERT INTO todoneList VALUES (:entryToInsert)", {'entryToInsert': entryToInsert})
+	conn2.commit()
 	return redirect(url_for('index'))
 
 """
