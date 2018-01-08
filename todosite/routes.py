@@ -2,10 +2,6 @@ import sqlite3
 from flask import render_template, request, redirect, url_for
 from todosite import app
 
-"""
-#TODO: change functions to get on server
-"""
-
 conn = sqlite3.connect('todoList.db')
 conn.text_factory = str
 c = conn.cursor()
@@ -24,17 +20,6 @@ c2.execute(""" CREATE TABLE IF NOT EXISTS todoneList (
 	) """)
 conn2.commit()
 
-
-
-
-@app.route('/handleData', methods=['POST'])
-def handleData():
-	idea = request.form['ideaInput']
-	c.execute("INSERT INTO todoList VALUES (:entry)", {'entry': idea})
-	conn.commit()
-	return redirect(url_for('index'))
-
-
 @app.route('/')
 def index():
 	c.execute("SELECT * FROM todoList")
@@ -47,6 +32,12 @@ def index():
 	conn2.commit()
 	return render_template('index.html', todoList=todoList, doneList=doneList),  # todoListStr
 
+@app.route('/handleData', methods=['POST'])
+def handleData():
+	idea = request.form['ideaInput']
+	c.execute("INSERT INTO todoList VALUES (:entry)", {'entry': idea})
+	conn.commit()
+	return redirect(url_for('index'))
 
 @app.route('/deleteEntry')
 def deleteEntry():

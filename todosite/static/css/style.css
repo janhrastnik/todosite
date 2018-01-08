@@ -1,5 +1,5 @@
-body .test{
-    background-color: green;
+body {
+    background-color: lightblue;
     padding-left: 100px;
     padding-right: 100px;
 }
