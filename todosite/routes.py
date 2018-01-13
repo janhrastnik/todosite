@@ -6,35 +6,29 @@ conn = sqlite3.connect('todoList.db')
 conn.text_factory = str
 c = conn.cursor()
 
-conn2 = sqlite3.connect('todoneList.db')
-conn2.text_factory = str
-c2 = conn2.cursor()
-
 c.execute(""" CREATE TABLE IF NOT EXISTS todoList (
-				entry text NOT NULL
+				entry text NOT NULL,
+				done integer NOT NULL
 	) """)
 conn.commit()
 
-c2.execute(""" CREATE TABLE IF NOT EXISTS todoneList (
-				entry text NOT NULL
-	) """)
-conn2.commit()
-
 @app.route('/')
 def index():
-	c.execute("SELECT rowid,* FROM todoList")
+	c.execute("SELECT rowid,* FROM todoList WHERE done = 0")
+	todoList = c.fetchall()
 	conn.commit()
 
-	c2.execute("SELECT * FROM todoneList")
-	conn2.commit()
+	c.execute("SELECT rowid,* FROM todoList WHERE done = 1")
+	doneList = c.fetchall()
+	conn.commit()
 
-	return render_template('index.html', todoList=c.fetchall(), doneList=c2.fetchall()),
+	return render_template('index.html', todoList=todoList, doneList=doneList)
 
 @app.route('/handleData', methods=['POST'])
 def handleData():
 	idea = request.form['ideaInput']
 	if idea:
-		c.execute("INSERT INTO todoList VALUES (:entry)", {'entry': idea})
+		c.execute("INSERT INTO todoList VALUES (:entry, :done)", {'entry': idea, 'done': 0})
 		conn.commit()
 	return redirect(url_for('index'))
 
@@ -49,25 +43,13 @@ def deleteEntry():
 def doneEntry():
 	entryId = request.args.get('entryId')
 
-	c.execute("SELECT entry FROM todoList WHERE rowid = :Id", {"Id": entryId})
-	entryToInsert = c.fetchall()[0][0]
+	c.execute("UPDATE todoList SET done = :done WHERE rowid = :Id", {"done": 1, "Id": entryId})
 	conn.commit()
 
-	c.execute("DELETE FROM todoList WHERE rowid = :Id", {"Id": entryId})
-	conn.commit()
-
-	c2.execute("INSERT INTO todoneList VALUES (:entryToInsert)", {'entryToInsert': entryToInsert})
-	conn2.commit()
 	return redirect(url_for('index'))
 
-"""
-@app.route('/test', methods=['POST'])
+
+@app.route('/test')
 def test():
-	testentry = request.form['test']
-	return testentry
-
-
-@app.teardown_appcontext
-def close_db(error):
-	conn.close()
-"""
+	c.execute("SELECT * FROM todoList")
+	return str(c.fetchall())

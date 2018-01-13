@@ -51,7 +51,10 @@
                     <ul>
             	    {% for row in doneList %}
 
-                        <li>{{ row[0] }}</li>
+                        <li>
+                            <a href="{{ url_for('deleteEntry', entryId=row[0])}}"><button class="btn">Delete</button></a>
+                            {{ row[1] }}
+                        </li>
 
             	    {% endfor %}
                     </ul>
