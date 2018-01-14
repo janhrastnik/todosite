@@ -2,6 +2,7 @@ import sqlite3
 from flask import render_template, request, redirect, url_for
 from todosite import app
 
+
 conn = sqlite3.connect('todoList.db')
 conn.text_factory = str
 c = conn.cursor()
