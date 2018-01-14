@@ -38,6 +38,8 @@
                 {% for row in todoList %}
 
                     <li>
+                        <!-- should send post not get -->
+
                         <a href="{{ url_for('deleteEntry', entryId=row[0])}}"><button class="btn">Delete</button></a>
                         <a href="{{ url_for('doneEntry', entryId=row[0])}}"><button class="btn">Done</button></a>
                         {{ row[1] }}
