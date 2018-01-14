@@ -32,16 +32,16 @@ def handleData():
 		conn.commit()
 	return redirect(url_for('index'))
 
-@app.route('/deleteEntry')
+@app.route('/deleteEntry', methods=['POST'])
 def deleteEntry():
-	entryId = request.args.get('entryId')
+	entryId = request.form['deleteId']
 	c.execute("DELETE FROM todoList WHERE rowid = :Id", {"Id": entryId})
 	conn.commit()
 	return redirect(url_for('index'))
 
-@app.route('/doneEntry')
+@app.route('/doneEntry', methods=['POST'])
 def doneEntry():
-	entryId = request.args.get('entryId')
+	entryId = request.form['doneId']
 
 	c.execute("UPDATE todoList SET done = :done WHERE rowid = :Id", {"done": 1, "Id": entryId})
 	conn.commit()

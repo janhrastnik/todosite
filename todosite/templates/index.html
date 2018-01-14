@@ -36,11 +36,15 @@
                 {% for row in todoList %}
                 <div class="row">
                     <div class="col-md-12">
-                        <!-- should send post not get -->
-                        <a href="{{ url_for('deleteEntry', entryId=row[0])}}" class="btn btn-danger btn-sm active" role="button">&#10005;</a>
+                        <form action="{{ url_for('deleteEntry')}}" method="post">
+                            <input type="hidden" name="deleteId" value={{row[0]}}>
+                            <input type="submit" class="btn btn-danger btn-sm" value="&#10005;">
+                        </form>
 
-                        <!-- should send post not get -->
-                        <a href="{{ url_for('doneEntry', entryId=row[0])}}" class="btn btn-success btn-sm active" role="button">&#10004;</a>
+                        <form action="{{ url_for('doneEntry')}}" method="post">
+                            <input type="hidden" name="doneId" value={{row[0]}}>
+                            <input type="submit" class="btn btn-success btn-sm" value="&#10004;">
+                        </form>
 
                         {{ row[1] }}
                     </div>
@@ -54,7 +58,10 @@
         	    {% for row in doneList %}
                     <div class="row">
                         <div class="col-md-12">
-                        <a href="{{ url_for('deleteEntry', entryId=row[0])}}" class="btn btn-danger btn-sm active" role="button">&#10005;</a>
+                        <form action="{{ url_for('deleteEntry')}}" method="post">
+                            <input type="hidden" name="deleteId" value={{row[0]}}>
+                            <input type="submit" class="btn btn-danger btn-sm" value="&#10005;">
+                        </form>
                         {{ row[1] }}
                         </div>
                     </div>
