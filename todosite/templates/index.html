@@ -1,21 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-
-    <!-- My CSS -->
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css') }}">
-
-    <title>This is the greatest to-do list of All Time</title>
-</head>
-
-<body>
+{% block content %}
     <div class="container">
         <div class="row">
         	<div class="col-md-12">
@@ -80,6 +65,4 @@
             </div>
         </div>
     </div>
-</body>
-
-</html>
+{% endblock %}
