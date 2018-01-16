@@ -35,7 +35,7 @@ def deleteEntry():
 def doneEntry():
     entryId = request.form['doneId']
 
-    db.session.query(Post).filter_by(id=entryId).first().done = True
+    Post.query.filter_by(id=entryId).first().done = True
     db.session.commit()
 
     return redirect(url_for('index'))
