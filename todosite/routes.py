@@ -11,9 +11,25 @@ from werkzeug.urls import url_parse
 @login_required
 def index():
 
-    todoList = Post.query.filter(done=False, username=current_user.username()).all()
-    print(todoList)
-    doneList = Post.query.filter(done=True, username=current_user.username()).all()
+    todoList = []
+    todoListObj = db.session.query(Post).filter_by(user=current_user.username, done=False)
+    db.session.commit()
+    for entry in todoListObj:
+            lst = []
+            lst.append(entry.id)
+            lst.append(entry.entry)
+            todoList.append(lst)
+    
+    doneList = []
+    doneListObj = db.session.query(Post).filter_by(user=current_user.username, done=True)
+    db.session.commit()
+    for entry in doneListObj:
+            lst = []
+            lst.append(entry.id)
+            lst.append(entry.entry)
+            doneList.append(lst)
+            print(doneList)
+            print(entry.done)
 
     return render_template('index.html', todoList=todoList, doneList=doneList)
 
@@ -29,7 +45,7 @@ def handleData():
 @app.route('/deleteEntry', methods=['POST'])
 def deleteEntry():
     entryId = request.form['deleteId']
-    db.session.delete(Post.query.filter_by(id=entryId))
+    Post.query.filter_by(id=entryId).delete()
     db.session.commit()
     return redirect(url_for('index'))
 
@@ -37,7 +53,8 @@ def deleteEntry():
 def doneEntry():
     entryId = request.form['doneId']
 
-    Post.query.filter_by(id=entryId).done = True
+    entry = db.session.query(Post).filter_by(id=entryId).first()
+    entry.done = True
     db.session.commit()
 
     return redirect(url_for('index'))
