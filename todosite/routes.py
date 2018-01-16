@@ -3,31 +3,17 @@ from flask import render_template, request, redirect, url_for, flash
 from todosite import app
 from .forms import LoginForm, RegistrationForm
 from flask_login import current_user, login_user, logout_user, login_required
-from .models import User
+from .models import User, Post
 from todosite import db
 from werkzeug.urls import url_parse
-
-conn = sqlite3.connect('todoList.db')
-conn.text_factory = str
-c = conn.cursor()
-
-c.execute(""" CREATE TABLE IF NOT EXISTS todoList (
-                username text NOT NULL,
-                entry text NOT NULL,
-                done integer NOT NULL
-    ) """)
-conn.commit()
 
 @app.route('/')
 @login_required
 def index():
-    c.execute("SELECT rowid, entry FROM todoList WHERE done = 0 AND username = :username", {'username':current_user.username})
-    todoList = c.fetchall()
-    conn.commit()
 
-    c.execute("SELECT rowid, entry FROM todoList WHERE done = 1 AND username = :username", {'username':current_user.username})
-    doneList = c.fetchall()
-    conn.commit()
+    todoList = Post.query.filter(done=False, username=current_user.username()).all()
+    print(todoList)
+    doneList = Post.query.filter(done=True, username=current_user.username()).all()
 
     return render_template('index.html', todoList=todoList, doneList=doneList)
 
@@ -35,23 +21,24 @@ def index():
 def handleData():
     idea = request.form['ideaInput']
     if idea:
-        c.execute("INSERT INTO todoList VALUES (:username, :entry, :done)", {'entry': idea, 'done': 0, 'username':current_user.username})
-        conn.commit()
+        entry = Post(entry=idea, user=current_user.username, group="default", done=False)
+        db.session.add(entry)
+        db.session.commit()
     return redirect(url_for('index'))
 
 @app.route('/deleteEntry', methods=['POST'])
 def deleteEntry():
     entryId = request.form['deleteId']
-    c.execute("DELETE FROM todoList WHERE rowid = :Id", {"Id": entryId})
-    conn.commit()
+    db.session.delete(Post.query.filter_by(id=entryId))
+    db.session.commit()
     return redirect(url_for('index'))
 
 @app.route('/doneEntry', methods=['POST'])
 def doneEntry():
     entryId = request.form['doneId']
 
-    c.execute("UPDATE todoList SET done = :done WHERE rowid = :Id", {"done": 1, "Id": entryId})
-    conn.commit()
+    Post.query.filter_by(id=entryId).done = True
+    db.session.commit()
 
     return redirect(url_for('index'))
 
