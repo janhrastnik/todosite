@@ -28,7 +28,10 @@ class Post(db.Model):
     entry = db.Column(db.String())
     user = db.Column(db.String(), index=True)
     group = db.Column(db.String())
-    done = db.Column(db.Boolean()) 
+    done = db.Column(db.Boolean())
+
+    def __repr__(self):
+        return '<Post {} {} {} {} {}>'.format(self.id, self.entry, self.user, self.group, self.done)
 
 @login.user_loader
 def load_user(id):

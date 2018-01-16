@@ -11,25 +11,8 @@ from werkzeug.urls import url_parse
 @login_required
 def index():
 
-    todoList = []
-    todoListObj = db.session.query(Post).filter_by(user=current_user.username, done=False)
-    db.session.commit()
-    for entry in todoListObj:
-            lst = []
-            lst.append(entry.id)
-            lst.append(entry.entry)
-            todoList.append(lst)
-    
-    doneList = []
-    doneListObj = db.session.query(Post).filter_by(user=current_user.username, done=True)
-    db.session.commit()
-    for entry in doneListObj:
-            lst = []
-            lst.append(entry.id)
-            lst.append(entry.entry)
-            doneList.append(lst)
-            print(doneList)
-            print(entry.done)
+    todoList = [(post.id, post.entry) for post in Post.query.filter_by(user=current_user.username, done=False).all()]
+    doneList = [(post.id, post.entry) for post in Post.query.filter_by(user=current_user.username, done=True).all()]
 
     return render_template('index.html', todoList=todoList, doneList=doneList)
 
@@ -37,8 +20,7 @@ def index():
 def handleData():
     idea = request.form['ideaInput']
     if idea:
-        entry = Post(entry=idea, user=current_user.username, group="default", done=False)
-        db.session.add(entry)
+        db.session.add(Post(entry=idea, user=current_user.username, group="default", done=False))
         db.session.commit()
     return redirect(url_for('index'))
 
@@ -53,8 +35,7 @@ def deleteEntry():
 def doneEntry():
     entryId = request.form['doneId']
 
-    entry = db.session.query(Post).filter_by(id=entryId).first()
-    entry.done = True
+    db.session.query(Post).filter_by(id=entryId).first().done = True
     db.session.commit()
 
     return redirect(url_for('index'))
