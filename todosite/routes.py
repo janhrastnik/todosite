@@ -12,8 +12,8 @@ conn.text_factory = str
 c = conn.cursor()
 
 c.execute(""" CREATE TABLE IF NOT EXISTS todoList (
-                entry text NOT NULL,
                 username text NOT NULL,
+                entry text NOT NULL,
                 done integer NOT NULL
     ) """)
 conn.commit()
@@ -35,7 +35,7 @@ def index():
 def handleData():
     idea = request.form['ideaInput']
     if idea:
-        c.execute("INSERT INTO todoList VALUES (:entry, :done, :username)", {'entry': idea, 'done': 0, 'username':current_user.username})
+        c.execute("INSERT INTO todoList VALUES (:username, :entry, :done)", {'entry': idea, 'done': 0, 'username':current_user.username})
         conn.commit()
     return redirect(url_for('index'))
 
