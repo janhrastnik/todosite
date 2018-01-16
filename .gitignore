@@ -2,3 +2,9 @@ run.pyc
 todoList.db
 __init__.pyc
 routes.pyc
+config.pyc
+forms.pyc
+__pycache__
+migrations
+todosite/app.db
+todosite/models.pyc
