@@ -24,14 +24,14 @@
                         <td>
                             <form action="{{ url_for('deleteEntry')}}" method="post">
                                 <input type="hidden" name="deleteId" value={{row[0]}}>
-                                <input type="submit" class="btn btn-danger btn-sm" value="&#10005;">
+                                <input type="submit" class="btn btn-danger btn-sm" value="X">
                             </form>
                         </td>
 
                         <td>
                             <form action="{{ url_for('doneEntry')}}" method="post">
                                 <input type="hidden" name="doneId" value={{row[0]}}>
-                                <input type="submit" class="btn btn-success btn-sm" value="&#10004;">
+                                <input type="submit" class="btn btn-success btn-sm" value="o">
                             </form>
                         </td>
 
@@ -52,7 +52,7 @@
                         <td>
                             <form action="{{ url_for('deleteEntry')}}" method="post">
                                 <input type="hidden" name="deleteId" value={{row[0]}}>
-                                <input type="submit" class="btn btn-danger btn-sm" value="&#10005;">
+                                <input type="submit" class="btn btn-danger btn-sm" value="X">
                             </form>
                         </td>
 
