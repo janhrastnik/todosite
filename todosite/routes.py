@@ -1,9 +1,8 @@
-import sqlite3
 from flask import render_template, request, redirect, url_for, flash
 from todosite import app
 from .forms import LoginForm, RegistrationForm
 from flask_login import current_user, login_user, logout_user, login_required
-from .models import User, Post
+from .models import User, Post, Group, UserGroup
 from todosite import db
 from werkzeug.urls import url_parse
 
@@ -13,14 +12,16 @@ def index():
 
     todoList = [(post.id, post.entry) for post in Post.query.filter_by(user=current_user.username, done=False).all()]
     doneList = [(post.id, post.entry) for post in Post.query.filter_by(user=current_user.username, done=True).all()]
-
-    return render_template('index.html', todoList=todoList, doneList=doneList)
+    groups = [(group.id, group.groupname) for group in Group.query.all()]
+    
+    return render_template('index.html', todoList=todoList, doneList=doneList, groups=groups)
 
 @app.route('/handleData', methods=['POST'])
 def handleData():
     idea = request.form['ideaInput']
-    if idea:
-        db.session.add(Post(entry=idea, user=current_user.username, group="default", done=False))
+    groupname = request.form['selectGroup']
+    if idea and groupname:
+        db.session.add(Post(entry=idea, user=current_user.username, group=groupname, done=False))
         db.session.commit()
     return redirect(url_for('index'))
 
@@ -80,3 +81,20 @@ def register():
         db.session.commit()
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
+
+@app.route('/makeGroup', methods=['POST'])
+def makeGroup():
+    groupName = request.form['groupNameInput']
+    if groupName:
+        newgroup = Group(groupname=groupName)
+        user = User.query.filter_by(username=current_user.username).first()
+        db.session.add(newgroup)
+        db.session.add(UserGroup(userid=user.id, groupid=newgroup.id))
+        db.session.commit()
+    return redirect(url_for('index'))
+
+@app.route('/addUser', methods=['POST'])
+def addUser():
+    newuser = User.query.filter_by(username=request.form['addUserInput']).first()
+    # adding more later
+

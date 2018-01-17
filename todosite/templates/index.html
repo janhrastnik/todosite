@@ -7,14 +7,34 @@
 	        	<div class="form-group">
 			        <form action="{{ url_for('handleData') }}" method="post">
 			        	<label for="idea"><h3>Input a new entry:</h3></label>
-
+                        <select name="selectGroup">
+                            {% for group in groups %}
+                            <option value="{{ group }}">{{ group[1] }}</option>
+                            {% endfor %}
+                        </select>
 			            <input type="text" class="form-control" name="ideaInput" id="idea" size="40" placeholder="Input your idea">
 
 			            <input type="submit" class="btn btn-default">
 			        </form>
+                    
+                    <form action="{{ url_for('makeGroup') }}" method="post">
+                        <label for="makeGroup"><h3>Create a new group:</h3></label>
+
+                        <input type="text" class="form-control" name="groupNameInput" id="makeGroup" size="40" placeholder="Input your group name">
+
+                        <input type="submit" class="btn btn-default">
+                    </form>
 			    </div>
 		    </div>
         </div>
+        {% for group in groups %}
+        <br>
+        <h1>Group {{ group[1] }}</h1>
+        <form action="{{ url_for('addUser') }}" method="post">
+            <label for="addUser"><p>Add a new user:</p></label>
+            <input type="text" class="form-control" name="addUserInput" id="addUser" size="30" placeholder="Input the users name">
+            <input type="submit" class="btn btn-default">
+        </form>
         <div class="row">
             <div class="col-md-6">
                 <h1>Todo:</h1>
@@ -65,4 +85,5 @@
             </div>
         </div>
     </div>
+    {% endfor %}
 {% endblock %}

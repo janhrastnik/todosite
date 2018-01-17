@@ -23,6 +23,11 @@ class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     groupname = db.Column(db.String(64), index=True, unique=True)
 
+class UserGroup(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer)
+    groupid = db.Column(db.Integer)
+
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     entry = db.Column(db.String())
