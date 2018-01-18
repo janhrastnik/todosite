@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, HiddenField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length
 from .models import User
 
 class LoginForm(FlaskForm):
@@ -29,5 +29,5 @@ class RegistrationForm(FlaskForm):
 
 class InputForm(FlaskForm):
     entry = StringField('Input idea', validators=[DataRequired()])
-    group = HiddenField()
+    group = HiddenField(validators=[Length(min=4)])
     submit = SubmitField('Submit')

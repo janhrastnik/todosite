@@ -24,12 +24,15 @@ def index():
 @app.route('/handleData', methods=['POST'])
 def handleData():
     print(request.form)
-    #print(form)
-    #idea = request.form['ideaInput']
-    #groupname = request.form['selectGroup']
-    #if idea and groupname:
-    #    db.session.add(Post(entry=idea, user=current_user.username, group=groupname, done=False))
-    #    db.session.commit()
+    print(request.form['group'])
+    data = request.form
+    print(str(data))
+
+    idea = request.form['entry']
+    groupname = request.form['group']
+    if idea and groupname:
+        db.session.add(Post(entry=idea, user=current_user.username, group=groupname, done=False))
+        db.session.commit()
     return redirect(url_for('index'))
 
 @app.route('/deleteEntry', methods=['POST'])
