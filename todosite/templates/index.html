@@ -9,7 +9,7 @@
 			        	<label for="idea"><h3>Input a new entry:</h3></label>
                         <select name="selectGroup">
                             {% for group in groups %}
-                            <option value="{{ group }}">{{ group[1] }}</option>
+                            <option value="{{ group[1] }}">{{ group[1] }}</option>
                             {% endfor %}
                         </select>
 			            <input type="text" class="form-control" name="ideaInput" id="idea" size="40" placeholder="Input your idea">
@@ -32,6 +32,7 @@
         <h1>Group {{ group[1] }}</h1>
         <form action="{{ url_for('addUser') }}" method="post">
             <label for="addUser"><p>Add a new user:</p></label>
+            <input type="hidden" name="groupName" value="{{group}}">
             <input type="text" class="form-control" name="addUserInput" id="addUser" size="30" placeholder="Input the users name">
             <input type="submit" class="btn btn-default">
         </form>
@@ -40,6 +41,7 @@
                 <h1>Todo:</h1>
                 <table>
                 {% for row in todoList %}
+                {% if row[2] == group[1] %}    
                     <tr>
                         <td>
                             <form action="{{ url_for('deleteEntry')}}" method="post">
@@ -55,10 +57,11 @@
                             </form>
                         </td>
 
-                        <td>
-                            {{ row[1] }}
-                        </td>
+                            <td>
+                                {{ row[1] }}
+                            </td>
                     </tr>
+                {% endif %}    
                 {% endfor %}
                 </table>
             </div>
@@ -68,6 +71,7 @@
                 <h1>Todone:</h1>
                 <table>
                     {% for row in doneList %}
+                    {% if row[2] == group[1]  %}
                     <tr>
                         <td>
                             <form action="{{ url_for('deleteEntry')}}" method="post">
@@ -80,6 +84,7 @@
                             {{ row[1] }}
                         </td>
                     </tr>
+                {% endif %}
                 {% endfor %}
                 </table>
             </div>

@@ -5,11 +5,13 @@ from flask_login import current_user, login_user, logout_user, login_required
 from .models import User, Post, Group
 from todosite import db
 from werkzeug.urls import url_parse
+import re
 
 @app.route('/')
 @login_required
 def index():
 
+    """
     #TESTS:
     print(Group.query.all())
     print(User.query.all())
@@ -22,11 +24,12 @@ def index():
     for user in g.usersInGroup:
         #should print <User t> many times (it's appended every time it runs)
         print(user)
+    """
 
-
-    todoList = [(post.id, post.entry) for post in db.session.query(Post).filter_by(user=current_user.username, done=False).all()]
-    doneList = [(post.id, post.entry) for post in db.session.query(Post).filter_by(user=current_user.username, done=True).all()]
-    groups = [(group.id, group.name) for group in db.session.query(Group).all()]
+    todoList = [(post.id, post.entry, post.group) for post in db.session.query(Post).filter_by(done=False).all()]
+    doneList = [(post.id, post.entry, post.group) for post in db.session.query(Post).filter_by(done=True).all()]
+    user = db.session.query(User).filter_by(username=current_user.username).first()
+    groups = [(group.id, group.name) for group in user.groupsOfUser]
 
     return render_template('index.html', todoList=todoList, doneList=doneList, groups=groups)
 
@@ -98,14 +101,23 @@ def register():
 
 @app.route('/makeGroup', methods=['POST'])
 def makeGroup():
-    groupName = request.form['groupNameInput']
+    groupName = Group(name=request.form['groupNameInput'])
+    print(groupName)
     if groupName:
         user = User.query.filter_by(username=current_user.username).first()
-        db.session.add(Group(name=groupName))
+        groupName.usersInGroup.append(user)
         db.session.commit()
     return redirect(url_for('index'))
 
 @app.route('/addUser', methods=['POST'])
 def addUser():
+    group = request.form['groupName']
+    pattern = re.compile(r"'(.*)\'")
+    matches = pattern.finditer(group)
+    for match in matches:
+        group = match.group(0)[1:-1]
+    groupName = Group.query.filter_by(name=group).first()
     newuser = User.query.filter_by(username=request.form['addUserInput']).first()
-    # adding more later
+    groupName.usersInGroup.append(newuser)
+    db.session.commit()
+    return redirect(url_for('index'))
