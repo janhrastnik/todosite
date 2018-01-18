@@ -2,7 +2,7 @@ from flask import render_template, request, redirect, url_for, flash
 from todosite import app
 from .forms import LoginForm, RegistrationForm
 from flask_login import current_user, login_user, logout_user, login_required
-from .models import User, Post, Group, UserGroup
+from .models import User, Post, Group
 from todosite import db
 from werkzeug.urls import url_parse
 
@@ -10,10 +10,24 @@ from werkzeug.urls import url_parse
 @login_required
 def index():
 
-    todoList = [(post.id, post.entry) for post in Post.query.filter_by(user=current_user.username, done=False).all()]
-    doneList = [(post.id, post.entry) for post in Post.query.filter_by(user=current_user.username, done=True).all()]
-    groups = [(group.id, group.groupname) for group in Group.query.all()]
-    
+    #TESTS:
+    print(Group.query.all())
+    print(User.query.all())
+    g = Group.query.first()
+    print(g)
+    u = User.query.first()
+    print(u)
+    g.usersInGroup.append(u)
+
+    for user in g.usersInGroup:
+        #should print <User t> many times (it's appended every time it runs)
+        print(user)
+
+
+    todoList = [(post.id, post.entry) for post in db.session.query(Post).filter_by(user=current_user.username, done=False).all()]
+    doneList = [(post.id, post.entry) for post in db.session.query(Post).filter_by(user=current_user.username, done=True).all()]
+    groups = [(group.id, group.name) for group in db.session.query(Group).all()]
+
     return render_template('index.html', todoList=todoList, doneList=doneList, groups=groups)
 
 @app.route('/handleData', methods=['POST'])
@@ -28,7 +42,7 @@ def handleData():
 @app.route('/deleteEntry', methods=['POST'])
 def deleteEntry():
     entryId = request.form['deleteId']
-    Post.query.filter_by(id=entryId).delete()
+    db.session.query(Post).filter_by(id=entryId).delete()
     db.session.commit()
     return redirect(url_for('index'))
 
@@ -36,7 +50,7 @@ def deleteEntry():
 def doneEntry():
     entryId = request.form['doneId']
 
-    Post.query.filter_by(id=entryId).first().done = True
+    db.session.query(Post).filter_by(id=entryId).first().done = True
     db.session.commit()
 
     return redirect(url_for('index'))
@@ -86,10 +100,8 @@ def register():
 def makeGroup():
     groupName = request.form['groupNameInput']
     if groupName:
-        newgroup = Group(groupname=groupName)
         user = User.query.filter_by(username=current_user.username).first()
-        db.session.add(newgroup)
-        db.session.add(UserGroup(userid=user.id, groupid=newgroup.id))
+        db.session.add(Group(name=groupName))
         db.session.commit()
     return redirect(url_for('index'))
 
@@ -97,4 +109,3 @@ def makeGroup():
 def addUser():
     newuser = User.query.filter_by(username=request.form['addUserInput']).first()
     # adding more later
-
