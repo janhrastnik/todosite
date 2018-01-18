@@ -1,6 +1,6 @@
 from flask import render_template, request, redirect, url_for, flash
 from todosite import app
-from .forms import LoginForm, RegistrationForm
+from .forms import LoginForm, RegistrationForm, InputForm
 from flask_login import current_user, login_user, logout_user, login_required
 from .models import User, Post, Group
 from todosite import db
@@ -11,35 +11,25 @@ import re
 @login_required
 def index():
 
-    """
-    #TESTS:
-    print(Group.query.all())
-    print(User.query.all())
-    g = Group.query.first()
-    print(g)
-    u = User.query.first()
-    print(u)
-    g.usersInGroup.append(u)
-
-    for user in g.usersInGroup:
-        #should print <User t> many times (it's appended every time it runs)
-        print(user)
-    """
-
     todoList = [(post.id, post.entry, post.group) for post in db.session.query(Post).filter_by(done=False).all()]
     doneList = [(post.id, post.entry, post.group) for post in db.session.query(Post).filter_by(done=True).all()]
+    
     user = db.session.query(User).filter_by(username=current_user.username).first()
     groups = [(group.id, group.name) for group in user.groupsOfUser]
 
-    return render_template('index.html', todoList=todoList, doneList=doneList, groups=groups)
+    form = InputForm()
+
+    return render_template('index.html', todoList=todoList, doneList=doneList, allGroupsOfCurentUser=groups, form=form)
 
 @app.route('/handleData', methods=['POST'])
 def handleData():
-    idea = request.form['ideaInput']
-    groupname = request.form['selectGroup']
-    if idea and groupname:
-        db.session.add(Post(entry=idea, user=current_user.username, group=groupname, done=False))
-        db.session.commit()
+    print(request.form)
+    #print(form)
+    #idea = request.form['ideaInput']
+    #groupname = request.form['selectGroup']
+    #if idea and groupname:
+    #    db.session.add(Post(entry=idea, user=current_user.username, group=groupname, done=False))
+    #    db.session.commit()
     return redirect(url_for('index'))
 
 @app.route('/deleteEntry', methods=['POST'])
