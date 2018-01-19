@@ -23,13 +23,8 @@ def index():
 
 @app.route('/handleData', methods=['POST'])
 def handleData():
-    print(request.form)
-    print(request.form['group'])
-    data = request.form
-    print(str(data))
-
     idea = request.form['entry']
-    groupname = request.form['group']
+    groupname = request.form['hidden']
     if idea and groupname:
         db.session.add(Post(entry=idea, user=current_user.username, group=groupname, done=False))
         db.session.commit()
@@ -37,14 +32,14 @@ def handleData():
 
 @app.route('/deleteEntry', methods=['POST'])
 def deleteEntry():
-    entryId = request.form['deleteId']
+    entryId = request.form['hidden']
     db.session.query(Post).filter_by(id=entryId).delete()
     db.session.commit()
     return redirect(url_for('index'))
 
 @app.route('/doneEntry', methods=['POST'])
 def doneEntry():
-    entryId = request.form['doneId']
+    entryId = request.form['hidden']
 
     db.session.query(Post).filter_by(id=entryId).first().done = True
     db.session.commit()
@@ -94,7 +89,7 @@ def register():
 
 @app.route('/makeGroup', methods=['POST'])
 def makeGroup():
-    groupName = Group(name=request.form['groupNameInput'])
+    groupName = Group(name=request.form['entry'])
     print(groupName)
     if groupName:
         user = User.query.filter_by(username=current_user.username).first()
@@ -104,13 +99,9 @@ def makeGroup():
 
 @app.route('/addUser', methods=['POST'])
 def addUser():
-    group = request.form['groupName']
-    pattern = re.compile(r"'(.*)\'")
-    matches = pattern.finditer(group)
-    for match in matches:
-        group = match.group(0)[1:-1]
+    group = request.form['hidden']
     groupName = Group.query.filter_by(name=group).first()
-    newuser = User.query.filter_by(username=request.form['addUserInput']).first()
+    newuser = User.query.filter_by(username=request.form['entry']).first()
     groupName.usersInGroup.append(newuser)
     db.session.commit()
     return redirect(url_for('index'))

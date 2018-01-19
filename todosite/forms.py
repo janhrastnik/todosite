@@ -27,7 +27,7 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('Please use a different email address.')
 
-class InputForm(FlaskForm):
+class InputForm(FlaskForm): # will try to use as a standard form
     entry = StringField('Input idea', validators=[DataRequired()])
-    group = HiddenField(validators=[Length(min=4)])
+    hidden = HiddenField(validators=[Length(min=4)])
     submit = SubmitField('Submit')
