@@ -29,5 +29,5 @@ class RegistrationForm(FlaskForm):
 
 class InputForm(FlaskForm): # will try to use as a standard form
     entry = StringField('Input idea', validators=[DataRequired()])
-    hidden = HiddenField(validators=[Length(min=4)])
+    hidden = HiddenField()
     submit = SubmitField('Submit')
