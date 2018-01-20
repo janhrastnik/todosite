@@ -2,7 +2,7 @@ from flask import render_template, request, redirect, url_for, flash, g
 from todosite import app
 from .forms import LoginForm, RegistrationForm, InputForm
 from flask_login import current_user, login_user, logout_user, login_required
-from .models import User, Post, Group
+from .models import User, Post, Group, groupUserAssociationTable
 from todosite import db
 from werkzeug.urls import url_parse
 
@@ -93,14 +93,11 @@ def makeGroup():
     todoList, doneList, groups = what()
     groupName = Group(name=request.form['entry'])
     form = InputForm(request.form)
-    if form.validate_on_submit():
-        try:    
-            user = User.query.filter_by(username=current_user.username).first()
-            groupName.usersInGroup.append(user)
-            db.session.commit()
-            return redirect(url_for('index'))
-        except:
-            flash("Group already exists. Please use a different name.")
+    if form.validate_on_submit():   
+        user = User.query.filter_by(username=current_user.username).first()
+        groupName.usersInGroup.append(user)
+        db.session.commit()
+        return redirect(url_for('index'))   
     form.entry.data = ""
     return render_template('index.html', todoList=todoList, doneList=doneList, allGroupsOfCurentUser=groups, form=form)
 
@@ -123,7 +120,9 @@ def addUser():
 
 @app.route('/deleteGroup', methods=['POST'])
 def deleteGroup():
-    Group.query.filter_by(id=request.form['hidden']).delete()
+    group = Group.query.filter_by(id=request.form['hidden'])
+    group.usersInGroup = []
     db.session.commit()
-    request.form['hidden']
+    group.delete()
+    db.session.commit()
     return redirect(url_for('index'))
