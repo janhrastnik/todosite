@@ -31,7 +31,3 @@ class InputForm(FlaskForm): # will try to use as a standard form
     entry = StringField(validators=[DataRequired()])
     hidden = HiddenField()
     submit = SubmitField('Submit')
-
-    def test(self):
-        print("testworking")
-        return 0

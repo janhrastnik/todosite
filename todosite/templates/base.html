@@ -25,13 +25,11 @@
         {% endif %}
     </div>
     <hr>
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    {% for message in messages %}
+
+    {% for message in get_flashed_messages() %}
     <p style="color: red">{{ message }}</p>
     {% endfor %}
-    {% endif %}
-    {% endwith %}
+
     {% block content %}{% endblock %}
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

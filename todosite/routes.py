@@ -1,12 +1,12 @@
-from flask import render_template, request, redirect, url_for, flash, g
+from flask import render_template, request, redirect, url_for, flash
 from todosite import app
 from .forms import LoginForm, RegistrationForm, InputForm
 from flask_login import current_user, login_user, logout_user, login_required
-from .models import User, Post, Group, groupUserAssociationTable
+from .models import User, Post, Group
 from todosite import db
 from werkzeug.urls import url_parse
 
-def what():
+def indexDataGenerator():
     todoList = [(post.id, post.entry, post.group) for post in db.session.query(Post).filter_by(done=False).all()]
     doneList = [(post.id, post.entry, post.group) for post in db.session.query(Post).filter_by(done=True).all()]
     
@@ -19,7 +19,7 @@ def what():
 @login_required
 def index():
     form = InputForm()
-    todoList, doneList, groups = what()
+    todoList, doneList, groups = indexDataGenerator()
     return render_template('index.html', todoList=todoList, doneList=doneList, allGroupsOfCurentUser=groups, form=form)
 
 @app.route('/handleData', methods=['POST'])
@@ -64,16 +64,10 @@ def login():
         return redirect(next_page)
     return render_template('login.html', title='Sign In', form=form)
 
-@app.route('/test')
-def test():
-    print(current_user.username)
-    return redirect(url_for('index'))
-
 @app.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('index'))
-
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -85,44 +79,44 @@ def register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        return redirect(url_for('login'))
+        return redirect(url_for('index'))
     return render_template('register.html', title='Register', form=form)
 
 @app.route('/makeGroup', methods=['POST'])
 def makeGroup():
-    todoList, doneList, groups = what()
-    groupName = Group(name=request.form['entry'])
     form = InputForm(request.form)
-    if form.validate_on_submit():   
-        user = User.query.filter_by(username=current_user.username).first()
-        groupName.usersInGroup.append(user)
-        db.session.commit()
-        return redirect(url_for('index'))   
-    form.entry.data = ""
-    return render_template('index.html', todoList=todoList, doneList=doneList, allGroupsOfCurentUser=groups, form=form)
+    if form.validate_on_submit():
+        try:
+            group = Group(name=request.form['entry'])
+            db.session.add(group)
+            db.session.commit()
+
+            group.usersInGroup.append(User.query.filter_by(username=current_user.username).first())
+            db.session.commit()
+        except:
+            flash("Group already exists!")
+    return redirect(url_for('index'))
 
 @app.route('/addUser', methods=['POST'])
 def addUser():
-    todoList, doneList, groups = what()
     form = InputForm(request.form)
-    if InputForm(request.form).validate_on_submit():    
-        try:    
-            group = request.form['hidden']
-            groupName = Group.query.filter_by(name=group).first()
+    if form.validate_on_submit():    
+        try:
+            group = Group.query.filter_by(name=request.form['hidden']).first()
             newuser = User.query.filter_by(username=request.form['entry']).first()
-            groupName.usersInGroup.append(newuser)
+            group.usersInGroup.append(newuser)
             db.session.commit()
         except:
-            flash("User does not exist. Try again.")
-            form.entry.data = ""
-            return render_template('index.html', todoList=todoList, doneList=doneList, allGroupsOfCurentUser=groups, form=form)
+            flash("User does not exist!")
     return redirect(url_for('index'))
 
 @app.route('/deleteGroup', methods=['POST'])
 def deleteGroup():
-    group = Group.query.filter_by(id=request.form['hidden'])
+    group = Group.query.filter_by(id=request.form['hidden']).first()
     group.usersInGroup = []
+
+    Post.query.filter_by(group=group.name).delete()
+    db.session.delete(group)
     db.session.commit()
-    group.delete()
-    db.session.commit()
+
     return redirect(url_for('index'))

@@ -33,7 +33,7 @@ class Group(db.Model):
     name = db.Column(db.String(64), index=True, unique=True)
 
     def __repr__(self):
-        return '<Group: {}>'.format(self.name)
+        return '<Group: {} {}>'.format(self.name, self.usersInGroup)
     
 class Post(db.Model):
     __tablename__ = 'PostTable'
