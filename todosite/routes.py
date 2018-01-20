@@ -23,15 +23,19 @@ def index():
     return render_template('index.html', todoList=todoList, doneList=doneList, allGroupsOfCurentUser=groups, form=form)
 
 @app.route('/handleData', methods=['POST'])
+@login_required
 def handleData():
     idea = request.form['entry']
     groupname = request.form['hidden']
     if InputForm(request.form).validate_on_submit():
         db.session.add(Post(entry=idea, user=current_user.username, group=groupname, done=False))
         db.session.commit()
+    else:
+        flash("Your idea can't be empty!")
     return redirect(url_for('index'))
 
 @app.route('/deleteEntry', methods=['POST'])
+@login_required
 def deleteEntry():
     entryId = request.form['hidden']
     db.session.query(Post).filter_by(id=entryId).delete()
@@ -39,6 +43,7 @@ def deleteEntry():
     return redirect(url_for('index'))
 
 @app.route('/doneEntry', methods=['POST'])
+@login_required
 def doneEntry():
     entryId = request.form['hidden']
 
@@ -55,19 +60,20 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
+            flash("Wrong credentials. Please try again.")
             return redirect(url_for('login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index')
-
         return redirect(next_page)
     return render_template('login.html', title='Sign In', form=form)
 
 @app.route('/logout')
+@login_required
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -83,6 +89,7 @@ def register():
     return render_template('register.html', title='Register', form=form)
 
 @app.route('/makeGroup', methods=['POST'])
+@login_required
 def makeGroup():
     form = InputForm(request.form)
     if form.validate_on_submit():
@@ -95,9 +102,12 @@ def makeGroup():
             db.session.commit()
         except:
             flash("Group already exists!")
+    else:
+        flash("Group name can't be empty.")
     return redirect(url_for('index'))
 
 @app.route('/addUser', methods=['POST'])
+@login_required
 def addUser():
     form = InputForm(request.form)
     if form.validate_on_submit():    
@@ -108,9 +118,12 @@ def addUser():
             db.session.commit()
         except:
             flash("User does not exist!")
+    else:
+        flash("User name can't be empty!")
     return redirect(url_for('index'))
 
 @app.route('/deleteGroup', methods=['POST'])
+@login_required
 def deleteGroup():
     group = Group.query.filter_by(id=request.form['hidden']).first()
     group.usersInGroup = []
