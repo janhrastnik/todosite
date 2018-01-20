@@ -1,31 +1,32 @@
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, g
 from todosite import app
 from .forms import LoginForm, RegistrationForm, InputForm
 from flask_login import current_user, login_user, logout_user, login_required
 from .models import User, Post, Group
 from todosite import db
 from werkzeug.urls import url_parse
-import re
 
-@app.route('/')
-@login_required
-def index():
-
+def what():
     todoList = [(post.id, post.entry, post.group) for post in db.session.query(Post).filter_by(done=False).all()]
     doneList = [(post.id, post.entry, post.group) for post in db.session.query(Post).filter_by(done=True).all()]
     
     user = db.session.query(User).filter_by(username=current_user.username).first()
-    groups = [(group.id, group.name) for group in user.groupsOfUser]
+    groups = [(group.id, group.name) for group in user.groupsOfUser]    
+    return todoList, doneList, groups
 
+
+@app.route('/')
+@login_required
+def index():
     form = InputForm()
-
+    todoList, doneList, groups = what()
     return render_template('index.html', todoList=todoList, doneList=doneList, allGroupsOfCurentUser=groups, form=form)
 
 @app.route('/handleData', methods=['POST'])
 def handleData():
     idea = request.form['entry']
     groupname = request.form['hidden']
-    if idea and groupname:
+    if InputForm(request.form).validate_on_submit():
         db.session.add(Post(entry=idea, user=current_user.username, group=groupname, done=False))
         db.session.commit()
     return redirect(url_for('index'))
@@ -89,19 +90,24 @@ def register():
 
 @app.route('/makeGroup', methods=['POST'])
 def makeGroup():
+    todoList, doneList, groups = what()
     groupName = Group(name=request.form['entry'])
     print(groupName)
-    if groupName:
+    form = InputForm(request.form)
+    if form.validate_on_submit():
         user = User.query.filter_by(username=current_user.username).first()
         groupName.usersInGroup.append(user)
         db.session.commit()
-    return redirect(url_for('index'))
+        return redirect(url_for('index'))
+    form.entry.data = ""
+    return render_template('index.html', todoList=todoList, doneList=doneList, allGroupsOfCurentUser=groups, form=form)
 
 @app.route('/addUser', methods=['POST'])
 def addUser():
-    group = request.form['hidden']
-    groupName = Group.query.filter_by(name=group).first()
-    newuser = User.query.filter_by(username=request.form['entry']).first()
-    groupName.usersInGroup.append(newuser)
-    db.session.commit()
+    if InputForm(request.form).validate_on_submit():    
+        group = request.form['hidden']
+        groupName = Group.query.filter_by(name=group).first()
+        newuser = User.query.filter_by(username=request.form['entry']).first()
+        groupName.usersInGroup.append(newuser)
+        db.session.commit()
     return redirect(url_for('index'))

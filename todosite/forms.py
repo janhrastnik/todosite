@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, HiddenField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length
-from .models import User
+from .models import User, Group
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -28,6 +28,18 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Please use a different email address.')
 
 class InputForm(FlaskForm): # will try to use as a standard form
-    entry = StringField('Input idea', validators=[DataRequired()])
+    entry = StringField(validators=[DataRequired()])
     hidden = HiddenField()
     submit = SubmitField('Submit')
+
+    def validate_entry(self, entry):
+        user = User.query.filter_by(username=entry.data).first()
+        group = Group.query.filter_by(name=entry.data).first()
+        if user is not None:
+            raise ValidationError('Please use a different username.')
+        if group is not None:
+            raise ValidationError('Please use a different groupname.')
+
+    def test(self):
+        print("testworking")
+        return 0

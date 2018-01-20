@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
+    {% for error in form.entry.errors %}
+    <script type="text/javascript">alert("{{ error }}")</script>
+    {% endfor %}
     <div class="container">
         <div class="row">
         	<div class="col-md-12">
@@ -9,7 +12,7 @@
                     <form action="{{ url_for('makeGroup') }}" method="post">
                         <label for="makeGroup"><h3>Create a new group:</h3></label>
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                        {{ form.entry(class="form-control", placeholder="Input your group name") }}
+                        {{ form.entry(class="form-control", placeholder="Enter your new group's name") }}
                         {{ form.submit(class="btn btn-default")}}
                     </form>
 
@@ -37,7 +40,7 @@
                             <label for="addUser"><p>Add a new user:</p></label>
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             {{ form.hidden(value=groupTuple[1])}}
-                            {{ form.entry(class="form-control", placeholder="Input your idea here") }}
+                            {{ form.entry(class="form-control") }}
                             {{ form.submit(class="btn btn-default")}}
                         </form>
               </div>
@@ -53,8 +56,7 @@
         <form action="{{ url_for('handleData') }}" method="post">
              <p>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                {{ form.entry.label }}
-                {{ form.entry(class="form-control", placeholder="Input your idea here") }}
+                {{ form.entry(class="form-control", placeholder="Enter your idea here")}}
                 {{ form.hidden(value=groupTuple[1]) }}
                 {{ form.submit(class="btn btn-default")}}
             </p>
