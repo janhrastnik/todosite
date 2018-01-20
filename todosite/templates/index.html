@@ -22,7 +22,14 @@
 
         {% for groupTuple in allGroupsOfCurentUser %}
         <br>
-        <h1>Group {{ groupTuple[1] }}</h1>
+        <span>    
+            <h1>Group {{ groupTuple[1] }}</h1>
+            <form action="{{ url_for('deleteGroup')}}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            {{ form.hidden(value=groupTuple[0])}}
+            {{ form.submit(class="btn btn-danger btn-sm", value="X")}}
+            </form>
+        </span>
 
         <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal">Add user</button>
 

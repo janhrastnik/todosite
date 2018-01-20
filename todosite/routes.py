@@ -92,22 +92,38 @@ def register():
 def makeGroup():
     todoList, doneList, groups = what()
     groupName = Group(name=request.form['entry'])
-    print(groupName)
     form = InputForm(request.form)
     if form.validate_on_submit():
-        user = User.query.filter_by(username=current_user.username).first()
-        groupName.usersInGroup.append(user)
-        db.session.commit()
-        return redirect(url_for('index'))
+        try:    
+            user = User.query.filter_by(username=current_user.username).first()
+            groupName.usersInGroup.append(user)
+            db.session.commit()
+            return redirect(url_for('index'))
+        except:
+            flash("Group already exists. Please use a different name.")
     form.entry.data = ""
     return render_template('index.html', todoList=todoList, doneList=doneList, allGroupsOfCurentUser=groups, form=form)
 
 @app.route('/addUser', methods=['POST'])
 def addUser():
+    todoList, doneList, groups = what()
+    form = InputForm(request.form)
     if InputForm(request.form).validate_on_submit():    
-        group = request.form['hidden']
-        groupName = Group.query.filter_by(name=group).first()
-        newuser = User.query.filter_by(username=request.form['entry']).first()
-        groupName.usersInGroup.append(newuser)
-        db.session.commit()
+        try:    
+            group = request.form['hidden']
+            groupName = Group.query.filter_by(name=group).first()
+            newuser = User.query.filter_by(username=request.form['entry']).first()
+            groupName.usersInGroup.append(newuser)
+            db.session.commit()
+        except:
+            flash("User does not exist. Try again.")
+            form.entry.data = ""
+            return render_template('index.html', todoList=todoList, doneList=doneList, allGroupsOfCurentUser=groups, form=form)
+    return redirect(url_for('index'))
+
+@app.route('/deleteGroup', methods=['POST'])
+def deleteGroup():
+    Group.query.filter_by(id=request.form['hidden']).delete()
+    db.session.commit()
+    request.form['hidden']
     return redirect(url_for('index'))

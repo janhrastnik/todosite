@@ -32,14 +32,6 @@ class InputForm(FlaskForm): # will try to use as a standard form
     hidden = HiddenField()
     submit = SubmitField('Submit')
 
-    def validate_entry(self, entry):
-        user = User.query.filter_by(username=entry.data).first()
-        group = Group.query.filter_by(name=entry.data).first()
-        if user is not None:
-            raise ValidationError('Please use a different username.')
-        if group is not None:
-            raise ValidationError('Please use a different groupname.')
-
     def test(self):
         print("testworking")
         return 0
