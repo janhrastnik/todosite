@@ -11,7 +11,7 @@ def indexDataGenerator():
     doneList = [(post.id, post.entry, post.group) for post in db.session.query(Post).filter_by(done=True).all()]
     
     user = db.session.query(User).filter_by(username=current_user.username).first()
-    groups = [(group.id, group.name) for group in user.groupsOfUser]    
+    groups = [group for group in user.groupsOfUser]    
     return todoList, doneList, groups
 
 
@@ -20,6 +20,7 @@ def indexDataGenerator():
 def index():
     form = InputForm()
     todoList, doneList, groups = indexDataGenerator()
+    print(groups)
     return render_template('index.html', todoList=todoList, doneList=doneList, allGroupsOfCurentUser=groups, form=form)
 
 @app.route('/handleData', methods=['POST'])
@@ -130,6 +131,20 @@ def deleteGroup():
 
     Post.query.filter_by(group=group.name).delete()
     db.session.delete(group)
+    db.session.commit()
+
+    return redirect(url_for('index'))
+
+@app.route('/deleteUser', methods=['POST'])
+@login_required
+def deleteUser():
+    form = InputForm(request.form)
+    
+    userId, groupId = tuple(form.hidden.data)
+    group = Group.query.filter_by(id=groupId).first()
+    user = User.query.filter_by(id=userId).first()
+
+    group.usersInGroup.remove(user)
     db.session.commit()
 
     return redirect(url_for('index'))
