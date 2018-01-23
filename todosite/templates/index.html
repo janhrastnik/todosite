@@ -5,40 +5,123 @@
         <div class="row">
         	<div class="col-md-12">
 	        	<div class="form-group">
-			        <form action="{{ url_for('handleData') }}" method="post">
-			        	<label for="idea"><h3>Input a new entry:</h3></label>
+                    
+                    <form action="{{ url_for('makeGroup') }}" method="post">
+                        <label for="makeGroup"><h3>Create a new group:</h3></label>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        {{ form.entry(class="form-control", placeholder="Enter your new group's name") }}
+                        {{ form.submit(class="btn btn-default")}}
+                    </form>
 
-			            <input type="text" class="form-control" name="ideaInput" id="idea" size="40" placeholder="Input your idea">
-
-			            <input type="submit" class="btn btn-default">
-			        </form>
 			    </div>
 		    </div>
         </div>
+
+        {% for group in allGroupsOfCurentUser %}
+        <br>
+        <h1>Group {{ group.name }}</h1>
+        <form action="{{ url_for('deleteGroup')}}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            {{ form.hidden(value=group.id)}}
+            {{ form.submit(class="btn btn-danger btn-sm", value="X")}}
+            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#addUserModal">Add user</button>
+            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#deleteUserModal">Delete user</button>
+        </form>
+
+
+        <!-- Add User Modal -->
+        <div id="addUserModal" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                   <form action="{{ url_for('addUser') }}" method="post">
+                        <label for="addUser"><p>Add a new user:</p></label>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        {{ form.hidden(value=group.name)}}
+                        {{ form.entry(class="form-control") }}
+                        {{ form.submit(class="btn btn-default")}}
+                    </form>
+                </div>
+            </div>
+
+          </div>
+        </div>
+        <!-- End of modal -->
+
+        <!-- Delete User Modal -->
+        <div id="deleteUserModal" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+              </div>
+              <div class="modal-body">
+                    <p>Delete user:</p>
+                    {% for user in group.usersInGroup %}
+                        <br>
+                        <form action="{{ url_for('deleteUser') }}" method="post">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                            <!-- please forgive me for this -->
+                            {{ form.hidden(value="{}{}".format(user.id, group.id)) }}
+                            {{ form.submit(class="btn btn-danger btn-sm", value=user.username)}}
+
+                        </form>
+                    {% endfor %}
+              </div>
+              <div class="modal-footer">
+                <!-- footer content -->
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <!-- End of modal -->
+
+        <form action="{{ url_for('handleData') }}" method="post">
+             <p>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                {{ form.entry(class="form-control", placeholder="Enter your idea here")}}
+                {{ form.hidden(value=group.name) }}
+                {{ form.submit(class="btn btn-default")}}
+            </p>
+        </form>
+
         <div class="row">
             <div class="col-md-6">
                 <h1>Todo:</h1>
                 <table>
                 {% for row in todoList %}
+                {% if row[2] == group.name %}    
                     <tr>
                         <td>
                             <form action="{{ url_for('deleteEntry')}}" method="post">
-                                <input type="hidden" name="deleteId" value={{row[0]}}>
-                                <input type="submit" class="btn btn-danger btn-sm" value="X">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                {{ form.hidden(value=row[0])}}
+                                {{ form.submit(class="btn btn-danger btn-sm", value="X")}}
                             </form>
                         </td>
 
                         <td>
                             <form action="{{ url_for('doneEntry')}}" method="post">
-                                <input type="hidden" name="doneId" value={{row[0]}}>
-                                <input type="submit" class="btn btn-success btn-sm" value="o">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                {{ form.hidden(value=row[0])}}
+                                {{ form.submit(class="btn btn-success btn-sm", value="o")}}
                             </form>
                         </td>
 
-                        <td>
-                            {{ row[1] }}
-                        </td>
+                            <td>
+                                {{ row[1] }}
+                            </td>
                     </tr>
+                {% endif %}    
                 {% endfor %}
                 </table>
             </div>
@@ -48,11 +131,13 @@
                 <h1>Todone:</h1>
                 <table>
                     {% for row in doneList %}
+                    {% if row[2] == group.name  %}
                     <tr>
                         <td>
                             <form action="{{ url_for('deleteEntry')}}" method="post">
-                                <input type="hidden" name="deleteId" value={{row[0]}}>
-                                <input type="submit" class="btn btn-danger btn-sm" value="X">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                {{ form.hidden(value=row[0])}}
+                                {{ form.submit(class="btn btn-danger btn-sm", value="X")}}
                             </form>
                         </td>
 
@@ -60,9 +145,11 @@
                             {{ row[1] }}
                         </td>
                     </tr>
+                {% endif %}
                 {% endfor %}
                 </table>
             </div>
         </div>
+        {% endfor %}
     </div>
 {% endblock %}
